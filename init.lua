@@ -69,6 +69,7 @@ vim.opt.rtp:prepend(lazypath)
 require('lazy').setup({
   -- NOTE: First, some plugins that don't require any configuration
 
+  'github/copilot.vim',
   -- Git related plugins
   'tpope/vim-fugitive',
   'tpope/vim-rhubarb',
@@ -214,7 +215,7 @@ require('lazy').setup({
   --    For additional information see: https://github.com/folke/lazy.nvim#-structuring-your-plugins
   -- { import = 'custom.plugins' },
 }, {})
-
+vim.g.copilot_assume_mapped = true
 -- [[ Setting options ]]
 -- See `:help vim.o`
 -- NOTE: You can change these options as you wish!
@@ -438,7 +439,20 @@ end
 --  define the property 'filetypes' to the map in question.
 local servers = {
   -- clangd = {},
-  gopls = { filetype = { 'go', 'gomod', 'gowork', 'gotmpl'}},
+  gopls = { 
+    filetype = { 'go', 'gomod', 'gowork', 'gotmpl'},
+    gopls = {
+      verboseOutput = true,
+      completeUnimported = true,
+      usePlaceholders = true,
+      gofumpt = true,
+      analyses = {
+        unusedparams = true,
+      },
+      importShortcut = 'Both',
+      staticcheck = true,
+    },
+  },
   -- pyright = {},
   -- rust_analyzer = {},
   tsserver = {},
@@ -524,6 +538,14 @@ cmp.setup {
     { name = 'luasnip' },
   },
 }
+
+vim.cmd[[
+ autocmd BufWritePost *.go :silent! execute '!gofumpt -w %' | e!
+]]
+
+vim.cmd [[
+ autocmd BufWritePost *.go silent! execute '!goimports -w %' | e!
+]]
 
 -- The line beneath this is called `modeline`. See `:help modeline`
 -- vim: ts=2 sts=2 sw=2 et
